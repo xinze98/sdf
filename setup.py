@@ -185,7 +185,7 @@ class BuildExt(build_ext):
 
 setup(
     name='pysdf-easy',
-    version='0.1.10',
+    version='1.0.0',
     author='Alex Yu',
     author_email='alexyu99126@gmail.com',
     description=
