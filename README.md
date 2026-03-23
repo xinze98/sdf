@@ -1,5 +1,8 @@
 # Triangle mesh to signed-distance function (SDF)
 
+> ⚠️ **Note from maintainer**: This repository is a fork of the excellent [sxyu/sdf](https://github.com/sxyu/sdf). It was created specifically to resolve widespread `pip install` compilation errors on modern Windows/MSVC setups (such as `pybind11 requires MSVC 2017 or newer` and `C2039: "high_resolution_clock": is not a member of "std::chrono"`). If you just want to install the package without C++ compilation headaches, use the pre-built binaries from this fork:
+> `pip install pysdf-easy`
+
 Given a triangle mesh and a set of points, this library supports:
 1. Computing SDF of mesh at each point: `sdf(points)`
 2. Computing whether each point is inside mesh: `sdf.contains(points)`
@@ -8,7 +11,9 @@ All operations are CPU-only and parallelized.
 
 ## Quickstart
 
-**Install python binding**: `pip install pysdf`
+**Install python binding**: `pip install pysdf-easy`
+
+*(The original package is named `pysdf`, but this maintained fork with pre-compiled compatibility wheels is available under `pysdf-easy`. **Note: The import statement remains exactly the same as the original library.**)*
 
 ### Usage example:
 ```python
