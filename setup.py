@@ -151,7 +151,7 @@ def cpp_flag(compiler):
 class BuildExt(build_ext):
     """A custom build extension for adding compiler-specific options."""
     c_opts = {
-        'msvc': ['/EHsc'],
+        'msvc': ['/EHsc', '/std:c++14', '/utf-8', '/wd4244', '/wd4267', '/wd4805'],
         'unix': [],
     }
     l_opts = {
@@ -184,8 +184,8 @@ class BuildExt(build_ext):
 
 
 setup(
-    name='pysdf',
-    version=__version__,
+    name='pysdf-easy',
+    version='0.1.10',
     author='Alex Yu',
     author_email='alexyu99126@gmail.com',
     description=

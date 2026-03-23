@@ -1,0 +1,73 @@
+name: Build and Publish Wheels
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # 只有打上 v1.0.0 这种 tag 时才触发发布
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.17.0
+        env:
+          CIBW_SKIP: "cp36-* cp37-* pp* *i686 *-musllinux*" # 跳过过老的Python和某些小众架构
+          CIBW_BUILD_FRONTEND: "build"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
+
+  publish_pypi:
+    name: Publish to PyPI
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # 仅当是在主仓库(非fork)并且是tag事件时才上传到PyPI
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    
+    # 启用 OIDC 也就是 Trusted Publishing (无密码发布，需要在PyPI设置)
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@tag/v1.8.14
+        
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+          generate_release_notes: true
